@@ -39,8 +39,9 @@ setup(
         "Click==7.1.2",
         "Mesa>=0.8.4",
         "NetworkX>=2.2",
-        "multilevel_mesa"
-
+        "multilevel_mesa",
+        "jupyter",
+        "matplotlib"
     ],
 
     python_requires='>=3.6,<4',
