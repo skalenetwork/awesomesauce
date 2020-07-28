@@ -2,12 +2,28 @@ from mesa import Model, Agent
 from mesa.time import RandomActivation
 from mesa.space import SingleGrid
 from mesa.datacollection import DataCollector
+from enum import Enum
+import random
+from transitions import Machine
 
 
-class SchellingAgent(Agent):
-    """
-    Schelling segregation agent
-    """
+REGISTER_PERIOD = 10
+UNREGISTER_PERIOD = 10
+
+
+class ValidatorState(Enum) :
+    UNREGISTERED = 1
+    REGISTERED = 2
+
+
+
+
+class EthAgent(Agent):
+
+    states = ['REGISTERED', "UNREGISTERED"]
+
+    def activate(period):
+        return random.random() < 1.0/period;
 
     def __init__(self, pos, model, agent_type):
         """
@@ -21,8 +37,27 @@ class SchellingAgent(Agent):
         super().__init__(pos, model)
         self.pos = pos
         self.type = agent_type
+        self.machine = Machine(model=self, states = EthAgent.states, initial='UNREGISTERED')
+        self.machine.add_transition('register','UNREGISTERED', 'REGISTERED')
+        self.machine.add_transition('unregister','REGISTERED', 'UNREGISTERED')
+
+    def do_register(self):
+        if not EthAgent.activate(REGISTER_PERIOD):
+            return;
+        print(f"Registered Validator!")
+        self.register()
+
+    def do_unregister(self):
+        if not EthAgent.activate(UNREGISTER_PERIOD):
+            return;
+        print(f"Unregistered Validator")
+        self.unregister()
 
     def step(self):
+
+        self.do_register()
+        self.do_unregister()
+
         similar = 0
         for neighbor in self.model.grid.neighbor_iter(self.pos):
             if neighbor.type == self.type:
@@ -73,7 +108,7 @@ class Schelling(Model):
                 else:
                     agent_type = 0
 
-                agent = SchellingAgent((x, y), self, agent_type)
+                agent = EthAgent((x, y), self, agent_type)
                 self.grid.position_agent(agent, (x, y))
                 self.schedule.add(agent)
 
@@ -91,3 +126,7 @@ class Schelling(Model):
 
         if self.happy == self.schedule.get_agent_count():
             self.running = False
+
+
+
+

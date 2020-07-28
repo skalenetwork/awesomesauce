@@ -41,7 +41,8 @@ setup(
         "NetworkX>=2.2",
         "multilevel_mesa",
         "jupyter",
-        "matplotlib"
+        "matplotlib",
+        "transitions"
     ],
 
     python_requires='>=3.6,<4',
