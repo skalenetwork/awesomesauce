@@ -2,7 +2,7 @@ from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
 
-from model import Schelling
+from model import Network
 
 
 class HappyElement(TextElement):
@@ -49,5 +49,5 @@ model_params = {
 }
 
 server = ModularServer(
-    Schelling, [canvas_element, happy_element, happy_chart], "Schelling", model_params
+    Network, [canvas_element, happy_element, happy_chart], "Schelling", model_params
 )

@@ -8,7 +8,7 @@ from transitions import Machine
 
 
 REGISTER_PERIOD = 10
-UNREGISTER_PERIOD = 10
+UNREGISTER_PERIOD = 100
 
 
 class ValidatorState(Enum) :
@@ -45,12 +45,13 @@ class EthAgent(Agent):
         if not EthAgent.throw_dice(REGISTER_PERIOD):
             return;
         print(f"Registered Validator!")
+        self.model.registered += 1
         self.register()
 
     def do_unregister(self):
         if not EthAgent.throw_dice(UNREGISTER_PERIOD):
             return;
-        print(f"Unregistered Validator")
+        self.model.registered -=1
         self.unregister()
 
     def do_step(self):
@@ -77,7 +78,7 @@ class EthAgent(Agent):
             self.model.happy += 1
 
 
-class Schelling(Model):
+class Network(Model):
     """
     Model class for the Schelling segregation model.
     """
@@ -96,6 +97,7 @@ class Schelling(Model):
         self.grid = SingleGrid(width, height, torus=True)
 
         self.happy = 0
+        self.registered = 0
         self.datacollector = DataCollector(
             {"happy": "happy"},  # Model-level count of happy agents
             # For testing purposes, agent's individual x and y

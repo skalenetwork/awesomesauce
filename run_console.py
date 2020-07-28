@@ -1,9 +1,9 @@
 from mesa.visualization.TextVisualization import TextData, TextGrid, TextVisualization
 
-from model import Schelling
+from model import Network
 
 
-class SchellingTextVisualization(TextVisualization):
+class NetworkTextVisualization(TextVisualization):
     """
     ASCII visualization for schelling model
     """
@@ -14,9 +14,9 @@ class SchellingTextVisualization(TextVisualization):
         """
         self.model = model
 
-        grid_viz = TextGrid(self.model.grid, self.print_ascii_agent)
-        happy_viz = TextData(self.model, "happy")
-        self.elements = [grid_viz, happy_viz]
+        ##grid_viz = TextGrid(self.model.grid, self.print_ascii_agent)
+        registered_viz = TextData(self.model, "registered")
+        self.elements = [registered_viz]
 
     @staticmethod
     def print_ascii_agent(a):
@@ -24,9 +24,9 @@ class SchellingTextVisualization(TextVisualization):
         Minority agents are X, Majority are O.
         """
         if a.type == 0:
-            return "O"
-        if a.type == 1:
             return "X"
+        if a.type == 1:
+            return "0"
 
 
 if __name__ == "__main__":
@@ -41,9 +41,9 @@ if __name__ == "__main__":
         "homophily": 3,
     }
 
-    model = Schelling(**model_params)
-    viz = SchellingTextVisualization(model)
+    model = Network(**model_params)
+    viz = NetworkTextVisualization(model)
     for i in range(10):
-        print("Step:", i)
+        print("Hour:", i)
         viz.step()
         print("---")
