@@ -1,5 +1,10 @@
-Awesomesauce is an agent-based framework for Ethereum Smart Contract testing.
+# awesomesauce
 
-It is used to test SKALE smart contracts.
+Agent-based testing framework for Ethereum Smart Contracts.
 
+## License
+
+[![License](https://img.shields.io/github/license/skalenetwork/sgx.py.svg)](LICENSE)
+
+Copyright (C) 2020-present SKALE Labs
 
