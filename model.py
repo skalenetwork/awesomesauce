@@ -22,7 +22,7 @@ class EthAgent(Agent):
 
     states = ['REGISTERED', "UNREGISTERED"]
 
-    def activate(period):
+    def throw_dice(period):
         return random.random() < 1.0/period;
 
     def __init__(self, pos, model, agent_type):
@@ -42,21 +42,28 @@ class EthAgent(Agent):
         self.machine.add_transition('unregister','REGISTERED', 'UNREGISTERED')
 
     def do_register(self):
-        if not EthAgent.activate(REGISTER_PERIOD):
+        if not EthAgent.throw_dice(REGISTER_PERIOD):
             return;
         print(f"Registered Validator!")
         self.register()
 
     def do_unregister(self):
-        if not EthAgent.activate(UNREGISTER_PERIOD):
+        if not EthAgent.throw_dice(UNREGISTER_PERIOD):
             return;
         print(f"Unregistered Validator")
         self.unregister()
 
+    def do_step(self):
+        if self.is_UNREGISTERED() and EthAgent.throw_dice(REGISTER_PERIOD) :
+            self.do_register()
+            return
+        if self.is_REGISTERED() and EthAgent.throw_dice(UNREGISTER_PERIOD) :
+            self.do_unregister()
+            return
+
     def step(self):
 
-        self.do_register()
-        self.do_unregister()
+        self.do_step()
 
         similar = 0
         for neighbor in self.model.grid.neighbor_iter(self.pos):
