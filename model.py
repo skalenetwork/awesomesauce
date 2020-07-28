@@ -52,7 +52,7 @@ class EthAgent(Agent):
         if not EthAgent.throw_dice(UNREGISTER_PERIOD):
             return;
         self.model.registered -=1
-        print(f"Registered Validator!")
+        print(f"Unregistered Validator!")
         self.unregister()
 
     def do_step(self):

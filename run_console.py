@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     model = Network(**model_params)
     viz = NetworkTextVisualization(model)
-    for i in range(10):
+    for i in range(100):
         print("Hour:", i)
         viz.step()
         print("---")
