@@ -1,0 +1,3 @@
+[submodule "universal-cli"]
+	path = universal-cli
+	url = https://github.com/skalenetwork/universal-cli.git
