@@ -9,8 +9,8 @@ import random
 from transitions import Machine
 
 
-REGISTER_PERIOD = 10
-UNREGISTER_PERIOD = 100
+REGISTER_PERIOD = 100
+SET_NAME_PERIOD = 1
 
 
 class ValidatorState(Enum) :
@@ -44,7 +44,11 @@ class EthAgent(Agent):
         self.machine.add_transition('unregister','REGISTERED', 'UNREGISTERED')
 
 
-    def run_command(self, contract : str, command: str, params: Dict[str,str] = None):
+    def maybe_run_command(self, period: float,
+                          contract : str, command: str, params: Dict[str, str] = None) -> bool:
+
+        if not EthAgent.throw_dice(period):
+            return False;
 
         cmd_line : list = ["python3", "universal-cli/main.py", contract,
                        command];
@@ -52,39 +56,35 @@ class EthAgent(Agent):
         if (params != None) :
             for key, value in params.items():
                 cmd_line.append(key)
-                cmd_line.append(value)
+                if (len(value) > 0) :
+                    cmd_line.append(value)
 
-
+        print("")
         print(cmd_line)
 
         subprocess.run(cmd_line,
                        check=True)
 
+        return True;
+
     def do_register(self):
-        if not EthAgent.throw_dice(REGISTER_PERIOD):
-            return;
-        print(f"Registered Validator!")
-        self.run_command("validator_service", "registerValidator", {"--help": ""})
+        if not self.maybe_run_command(REGISTER_PERIOD, "validator_service", "registerValidator", {"--help": ""}):
+            return
         self.model.registered += 1
         self.register()
 
 
-
-
-    def do_unregister(self):
-        if not EthAgent.throw_dice(UNREGISTER_PERIOD):
-            return;
-        self.model.registered -=1
-        self.run_command("validator_service", "unregisterValidator", {"--help": ""})
-        print(f"Unregistered Validator!")
+    def do_setname(self):
+        if not self.maybe_run_command(SET_NAME_PERIOD, "validator_service", "setValidatorName", {"--help": ""}):
+            return
         self.unregister()
 
     def do_step(self):
-        if self.is_UNREGISTERED() and EthAgent.throw_dice(REGISTER_PERIOD) :
+        if self.is_UNREGISTERED():
             self.do_register()
             return
-        if self.is_REGISTERED() and EthAgent.throw_dice(UNREGISTER_PERIOD) :
-            self.do_unregister()
+        if self.is_REGISTERED() :
+            self.do_setname()
             return
 
     def step(self):
