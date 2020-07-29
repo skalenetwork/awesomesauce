@@ -1,3 +1,5 @@
+import subprocess
+from typing import Dict
 from mesa import Model, Agent
 from mesa.time import RandomActivation
 from mesa.space import SingleGrid
@@ -41,17 +43,39 @@ class EthAgent(Agent):
         self.machine.add_transition('register','UNREGISTERED', 'REGISTERED')
         self.machine.add_transition('unregister','REGISTERED', 'UNREGISTERED')
 
+
+    def run_command(self, contract : str, command: str, params: Dict[str,str] = None):
+
+        cmd_line : list = ["python3", "universal-cli/main.py", contract,
+                       command];
+
+        if (params != None) :
+            for key, value in params.items():
+                cmd_line.append(key)
+                cmd_line.append(value)
+
+
+        print(cmd_line)
+
+        subprocess.run(cmd_line,
+                       check=True)
+
     def do_register(self):
         if not EthAgent.throw_dice(REGISTER_PERIOD):
             return;
         print(f"Registered Validator!")
+        self.run_command("validator_service", "registerValidator", {"--help": ""})
         self.model.registered += 1
         self.register()
+
+
+
 
     def do_unregister(self):
         if not EthAgent.throw_dice(UNREGISTER_PERIOD):
             return;
         self.model.registered -=1
+        self.run_command("validator_service", "unregisterValidator", {"--help": ""})
         print(f"Unregistered Validator!")
         self.unregister()
 
