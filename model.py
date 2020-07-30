@@ -1,62 +1,69 @@
-import subprocess
-from typing import Dict
-from mesa import Model, Agent
-from mesa.time import RandomActivation
-from mesa.space import SingleGrid
-from mesa.datacollection import DataCollector
-from enum import Enum
 import random
-from transitions import Machine
+import subprocess
+from enum import Enum
+from typing import Dict
 
+from mesa import Model, Agent
+from mesa.datacollection import DataCollector
+from mesa.space import SingleGrid
+from mesa.time import RandomActivation
+from transitions import Machine
 
 REGISTER_PERIOD = 100
 SET_NAME_PERIOD = 1
 
 
-class ValidatorState(Enum) :
+class ValidatorState(Enum):
     UNREGISTERED = 1
     REGISTERED = 2
 
 
-
-
 class EthAgent(Agent):
-
     states = ['REGISTERED', "UNREGISTERED"]
 
-    def throw_dice(period):
-        return random.random() < 1.0/period;
+    def set_transitions(self) -> None:
+        self.add_transition('register', 'UNREGISTERED', 'REGISTERED',
+                            "validator_service", "registerValidator", REGISTER_PERIOD)
+        self.add_transition('setname', 'REGISTERED', 'REGISTERED', "validator_service", "setValidatorName",
+                            SET_NAME_PERIOD)
+
+    transitionsToPeriods: Dict[str, float] = {}
+    transitionsToContracts: Dict[str, str] = {}
+    transitionsToCommands: Dict[str, str] = {}
+
+    @staticmethod
+    def throw_dice(period: float):
+        return random.random() < 1.0 / period
+
+    def add_transition(self, transition: str, state: str, next_state: str,
+                       contract: str, command: str, period: float) -> None:
+        self.machine.add_transition(transition, state, next_state)
+        self.transitionsToPeriods[transition] = period
+        self.transitionsToContracts[transition] = contract
+        self.transitionsToCommands[transition] = command
 
     def __init__(self, pos, model, agent_type):
-        """
-         Create a new Schelling agent.
 
-         Args:
-            unique_id: Unique identifier for the agent.
-            x, y: Agent initial location.
-            agent_type: Indicator for the agent's type (minority=1, majority=0)
-        """
         super().__init__(pos, model)
         self.pos = pos
         self.type = agent_type
-        self.machine = Machine(model=self, states = EthAgent.states, initial='UNREGISTERED')
-        self.machine.add_transition('register','UNREGISTERED', 'REGISTERED')
-        self.machine.add_transition('unregister','REGISTERED', 'UNREGISTERED')
+        self.machine = Machine(model=self, states=EthAgent.states, initial='UNREGISTERED')
+        self.set_transitions()
 
-
-    def maybe_run_command(self, period: float,
-                          contract : str, command: str, params: Dict[str, str] = None) -> bool:
+    @staticmethod
+    def maybe_run_command(period: float,
+                          contract: str, command: str, params: Dict[str, str] = None) -> bool:
 
         if not EthAgent.throw_dice(period):
-            return False;
+            return False
 
-        cmd_line : list = ["python3", "universal-cli/main.py", contract,
-                       command];
+        cmd_line: list = ["python3", "universal-cli/main.py", contract,
+                          command]
 
-        if (params != None) :
+        if params is not None:
             for key, value in params.items():
                 cmd_line.append(key)
-                if (len(value) > 0) :
+                if len(value) > 0:
                     cmd_line.append(value)
 
         print("")
@@ -65,25 +72,24 @@ class EthAgent(Agent):
         subprocess.run(cmd_line,
                        check=True)
 
-        return True;
+        return True
 
-    def do_register(self):
+    def do_register(self) -> None:
         if not self.maybe_run_command(REGISTER_PERIOD, "validator_service", "registerValidator", {"--help": ""}):
             return
         self.model.registered += 1
         self.register()
 
-
     def do_setname(self):
         if not self.maybe_run_command(SET_NAME_PERIOD, "validator_service", "setValidatorName", {"--help": ""}):
             return
-        self.unregister()
+        self.setname()
 
     def do_step(self):
         if self.is_UNREGISTERED():
             self.do_register()
             return
-        if self.is_REGISTERED() :
+        if self.is_REGISTERED():
             self.do_setname()
             return
 
@@ -160,7 +166,3 @@ class Network(Model):
 
         if self.happy == self.schedule.get_agent_count():
             self.running = False
-
-
-
-
