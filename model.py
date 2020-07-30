@@ -24,7 +24,7 @@ class EthAgent(Agent):
     def set_transitions(self) -> None:
         self.add_transition('register', 'UNREGISTERED', 'REGISTERED',
                             "validator_service", "registerValidator", REGISTER_PERIOD)
-        self.add_transition('setname', 'REGISTERED', 'REGISTERED', "validator_service", "setValidatorName",
+        self.add_transition('set_name', 'REGISTERED', 'REGISTERED', "validator_service", "setValidatorName",
                             SET_NAME_PERIOD)
 
     transitionsToPeriods: Dict[str, float] = {}
@@ -32,7 +32,7 @@ class EthAgent(Agent):
     transitionsToCommands: Dict[str, str] = {}
 
     @staticmethod
-    def throw_dice(period: float):
+    def throw_dice(period: float) -> bool:
         return random.random() < 1.0 / period
 
     def add_transition(self, transition: str, state: str, next_state: str,
@@ -50,15 +50,13 @@ class EthAgent(Agent):
         self.machine = Machine(model=self, states=EthAgent.states, initial='UNREGISTERED')
         self.set_transitions()
 
-    @staticmethod
-    def maybe_run_command(period: float,
-                          contract: str, command: str, params: Dict[str, str] = None) -> bool:
+    def maybe_run_command(self, transition: str, params: Dict[str, str] = None) -> bool:
 
-        if not EthAgent.throw_dice(period):
+        if not EthAgent.throw_dice(self.transitionsToPeriods[transition]):
             return False
 
-        cmd_line: list = ["python3", "universal-cli/main.py", contract,
-                          command]
+        cmd_line: list = ["python3", "universal-cli/main.py", self.transitionsToContracts[transition],
+                          self.transitionsToCommands[transition]]
 
         if params is not None:
             for key, value in params.items():
@@ -75,15 +73,15 @@ class EthAgent(Agent):
         return True
 
     def do_register(self) -> None:
-        if not self.maybe_run_command(REGISTER_PERIOD, "validator_service", "registerValidator", {"--help": ""}):
+        if not self.maybe_run_command("register", {"--help": ""}):
             return
         self.model.registered += 1
         self.register()
 
     def do_setname(self):
-        if not self.maybe_run_command(SET_NAME_PERIOD, "validator_service", "setValidatorName", {"--help": ""}):
+        if not self.maybe_run_command("set_name", {"--help": ""}):
             return
-        self.setname()
+        self.set_name()
 
     def do_step(self):
         if self.is_UNREGISTERED():
