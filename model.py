@@ -84,10 +84,10 @@ class EthAgent(Agent):
         self.set_name()
 
     def do_step(self):
-        if self.is_UNREGISTERED():
+        if self.state == "UNREGISTERED":
             self.do_register()
             return
-        if self.is_REGISTERED():
+        if self.state == "REGISTERED":
             self.do_setname()
             return
 
