@@ -12,7 +12,7 @@ WORKDIR /awesomesauce/skale-manager
 RUN yarn install;
 RUN npm install --global @nomiclabs/buidler
 RUN npx buidler compile
-RUN npx buidler test
+#RUN npx buidler test
 
 ENTRYPOINT ["/bin/bash"]
 
