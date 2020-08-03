@@ -21,6 +21,10 @@ class ValidatorState(Enum):
 class EthAgent(Agent):
     states = ['REGISTERED', "UNREGISTERED"]
 
+    @staticmethod
+    def call_method(o, name: str):
+        return getattr(o, name)()
+
     def set_transitions(self) -> None:
         self.add_transition('register', 'UNREGISTERED', 'REGISTERED',
                             "validator_service", "registerValidator", REGISTER_PERIOD)
@@ -72,11 +76,18 @@ class EthAgent(Agent):
 
         return True
 
+    def do_transition(self, transition: str) -> None:
+        if not self.maybe_run_command(transition, {"--help": ""}):
+            return
+        self.model.registered += 1
+        EthAgent.call_method(self, transition)
+
     def do_register(self) -> None:
+        do_transition
         if not self.maybe_run_command("register", {"--help": ""}):
             return
         self.model.registered += 1
-        self.register()
+        EthAgent.call_method(self, "register")
 
     def do_setname(self):
         if not self.maybe_run_command("set_name", {"--help": ""}):
@@ -86,6 +97,7 @@ class EthAgent(Agent):
     def do_step(self):
         if self.state == "UNREGISTERED":
             self.do_register()
+            self.model.registered += 1
             return
         if self.state == "REGISTERED":
             self.do_setname()

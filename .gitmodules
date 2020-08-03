@@ -1,3 +1,6 @@
 [submodule "universal-cli"]
 	path = universal-cli
 	url = https://github.com/skalenetwork/universal-cli.git
+[submodule "skale-manager"]
+	path = skale-manager
+	url = https://github.com/skalenetwork/skale-manager.git
