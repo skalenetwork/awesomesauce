@@ -14,5 +14,5 @@ RUN npm install --global @nomiclabs/buidler
 RUN npx buidler compile
 #RUN npx buidler test
 
-ENTRYPOINT ["/bin/bash"]
-
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["npx buidler node"]
