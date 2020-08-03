@@ -36,6 +36,7 @@ FULL_IMAGE_TAG = "skalenetwork/" + IMAGE_NAME + ":" + TAG_POSTFIX
 print("Starting build", flush=True)
 
 assert subprocess.call(["pwd"]) == 0
+assert subprocess.call(["ls"]) == 0
 
-assert subprocess.call(["docker", "build", topDir, "--file", topDir + "/" + DOCKER_FILE_NAME, "--tag",
+assert subprocess.call(["docker", "build", ".", "--tag",
                         FULL_IMAGE_TAG]) == 0
