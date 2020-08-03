@@ -25,7 +25,7 @@
 import sys, os, subprocess, time
 
 os.chdir("..")
-topDir = os.getcwd() + "/sgxwallet"
+topDir = os.getcwd()
 DOCKER_FILE_NAME = sys.argv[1]
 IMAGE_NAME = sys.argv[2]
 COMMIT_HASH = sys.argv[3]
