@@ -1,0 +1,10 @@
+version: '3'
+services:
+  awesomesauce:
+
+    image: skalenetwork/awesomesauce:develop-latest
+    network_mode: host   
+    ports:
+      - "8545:8545"
+    restart: unless-stopped
+
