@@ -24,7 +24,7 @@
 
 import sys, os, subprocess, time
 
-os.chdir("..")
+os.chdir("../awesomesauce")
 topDir = os.getcwd()
 DOCKER_FILE_NAME = sys.argv[1]
 IMAGE_NAME = sys.argv[2]
