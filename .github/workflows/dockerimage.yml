@@ -4,8 +4,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: skalelabs
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_SECRET }}
     steps:
     - name: Login to docker
       env:
